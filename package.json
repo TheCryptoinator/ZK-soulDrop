@@ -1,0 +1,47 @@
+{
+  "name": "zk-souldrop",
+  "version": "1.0.0",
+  "description": "ZK SoulDrop - Non-transferable NFT minting with zero-knowledge proofs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "compile": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy.js --network blockdag",
+    "test": "hardhat test",
+    "node": "hardhat node"
+  },
+  "dependencies": {
+    "@semaphore-protocol/contracts": "^3.1.0",
+    "@semaphore-protocol/group": "^3.1.0",
+    "@semaphore-protocol/identity": "^3.1.0",
+    "@semaphore-protocol/proof": "^3.1.0",
+    "dotenv": "^17.2.1",
+    "ethers": "^6.8.1",
+    "process": "^0.11.10",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.1",
+    "stream-browserify": "^3.0.0",
+    "util": "^0.12.5"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "hardhat": "^2.19.4",
+    "vite": "^5.0.8"
+  },
+  "keywords": [
+    "zk",
+    "semaphore",
+    "nft",
+    "soulbound",
+    "blockdag",
+    "ethereum"
+  ],
+  "author": "ZK SoulDrop Team",
+  "license": "MIT"
+}
