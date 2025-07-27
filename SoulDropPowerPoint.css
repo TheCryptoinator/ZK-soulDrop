@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZK SoulDrop - Espresso Machine Verification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(ellipse at center, #2c1810 0%, #1a0f08 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .coffee-shop-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .logo-text {
+            font-size: 3.5em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #d4af37, #ffd700, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.4em;
+            color: #d4af37;
+            margin-bottom: 20px;
+        }
+        
+        .main-interface {
+            display: grid;
+            grid-template-columns: 1fr 600px 1fr;
+            gap: 40px;
+            align-items: start;
+            margin: 40px 0;
+        }
+        
+        .info-panel {
+            background: rgba(139, 69, 19, 0.3);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 30px;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 12px 40px 0 rgba(139, 69, 19, 0.4);
+        }
+        
+        .espresso-machine {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .machine-body {
+            background: linear-gradient(145deg, #4a4a4a, #2a2a2a);
+            border-radius: 30px 30px 15px 15px;
+            padding: 40px 30px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.8),
+                inset 0 2px 10px rgba(255, 255, 255, 0.1);
+            border: 3px solid #666;
+            position: relative;
+        }
+        
+        .machine-top {
+            background: linear-gradient(145deg, #5a5a5a, #3a3a3a);
+            height: 50px;
+            border-radius: 25px 25px 0 0;
+            margin: -40px -30px 30px -30px;
+            border-bottom: 2px solid #666;
+            position: relative;
+        }
+        
+        .steam-wand {
+            position: absolute;
+            right: 20px;
+            top: -10px;
+            width: 8px;
+            height: 60px;
+            background: linear-gradient(145deg, #888, #444);
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .display-screen {
+            background: #000;
+            border: 4px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-family: 'Courier New', monospace;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .screen-glow {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(0, 255, 100, 0.1) 0%, transparent 70%);
+            animation: screenGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes screenGlow {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.7; }
+        }
+        
+        .status-text {
+            color: #00ff64;
+            font-size: 1.1em;
+            text-align: center;
+            text-shadow: 0 0 10px #00ff64;
+            z-index: 2;
+            position: relative;
+        }
+        
+        .button-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin-top: 30px;
+            padding: 0 20px;
+        }
+        
+        .espresso-button {
+            width: 100%;
+            height: 80px;
+            border: none;
+            border-radius: 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 
+                0 8px 16px rgba(0, 0, 0, 0.6),
+                inset 0 -4px 8px rgba(0, 0, 0, 0.4),
+                inset 0 2px 4px rgba(255, 255, 255, 0.2);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .espresso-button:active {
+            transform: translateY(4px);
+            box-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.6),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+                inset 0 1px 2px rgba(255, 255, 255, 0.2);
+        }
+        
+        .button-connect {
+            background: linear-gradient(145deg, #ff6b35, #d4511e);
+        }
+        
+        .button-connect:hover {
+            background: linear-gradient(145deg, #ff8555, #f4715e);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+        }
+        
+        .button-identity {
+            background: linear-gradient(145deg, #4ecdc4, #3aa99c);
+        }
+        
+        .button-identity:hover {
+            background: linear-gradient(145deg, #6ee7de, #5ac9c1);
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+        }
+        
+        .button-claim {
+            background: linear-gradient(145deg, #ffd93d, #e6c235);
+        }
+        
+        .button-claim:hover {
+            background: linear-gradient(145deg, #ffe55d, #f4d555);
+            box-shadow: 0 0 20px rgba(255, 217, 61, 0.5);
+        }
+        
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: linear-gradient(145deg, #666, #444) !important;
+        }
+        
+        .progress-lights {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .progress-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #333;
+            border: 2px solid #555;
+            transition: all 0.3s ease;
+        }
+        
+        .progress-light.active {
+            background: #00ff64;
+            box-shadow: 0 0 15px #00ff64;
+            border-color: #00ff64;
+        }
+        
+        .machine-base {
+            background: linear-gradient(145deg, #3a3a3a, #1a1a1a);
+            height: 20px;
+            border-radius: 0 0 10px 10px;
+            margin: 20px -30px -40px -30px;
+            border-top: 2px solid #666;
+        }
+        
+        .coffee-cup {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 40px;
+            background: linear-gradient(145deg, #8B4513, #654321);
+            border-radius: 0 0 20px 20px;
+            border: 2px solid #5D2F0C;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .coffee-cup.show {
+            opacity: 1;
+        }
+        
+        .coffee-cup::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 5px;
+            right: 5px;
+            height: 8px;
+            background: #2F1B14;
+            border-radius: 50%;
+        }
+        
+        .info-card {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .info-card h3 {
+            color: #d4af37;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .feature-list li::before {
+            content: '☕';
+            position: absolute;
+            left: 0;
+            color: #d4af37;
+        }
+        
+        .steam-effect {
+            position: absolute;
+            top: -20px;
+            right: 15px;
+            width: 20px;
+            height: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .steam-effect.active {
+            opacity: 1;
+            animation: steam 2s ease-in-out infinite;
+        }
+        
+        @keyframes steam {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.7; }
+            50% { transform: translateY(-10px) scale(1.2); opacity: 0.3; }
+        }
+        
+        .steam-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: steamParticle 1.5s ease-out infinite;
+        }
+        
+        .steam-particle:nth-child(1) { left: 2px; animation-delay: 0s; }
+        .steam-particle:nth-child(2) { left: 8px; animation-delay: 0.3s; }
+        .steam-particle:nth-child(3) { left: 14px; animation-delay: 0.6s; }
+        
+        @keyframes steamParticle {
+            0% { transform: translateY(0); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(-30px); opacity: 0; }
+        }
+        
+        .wallet-info {
+            background: rgba(0, 255, 100, 0.1);
+            border: 1px solid rgba(0, 255, 100, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        
+        .nft-preview {
+            background: linear-gradient(135deg, #8e44ad, #ba55d3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(139, 69, 179, 0.3);
+        }
+        
+        .nft-image {
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, #ffd93d, #ff8c00);
+            border-radius: 15px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (max-width: 1200px) {
+            .main-interface {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .info-panel {
+                order: 2;
+            }
+            
+            .espresso-machine {
+                order: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .logo-text {
+                font-size: 2.5em;
+            }
+            
+            .button-panel {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .espresso-button {
+                height: 60px;
+                border-radius: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="coffee-shop-container">
+        <div class="header">
+            <div class="logo-text">ZK SoulDrop</div>
+            <div class="subtitle">☕ Espresso Machine Verification System ☕</div>
+            <p>Brew your unique Soulbound NFT with zero-knowledge privacy</p>
+        </div>
+
+        <div class="main-interface">
+            <div class="info-panel">
+                <div class="info-card">
+                    <h3>🔐 Zero-Knowledge Identity</h3>
+                    <p>Generate unique Semaphore identities without revealing personal information. Your privacy is protected by advanced cryptographic proofs.</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>🏆 Soulbound NFTs</h3>
+                    <p>Mint non-transferable tokens that prove uniqueness and authenticity. These tokens are permanently bound to your identity.</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>⚡ BlockDAG Integration</h3>
+                    <p>Deployed on BlockDAG testnet for high-performance transactions with faster finality and lower costs.</p>
+                </div>
+
+                <div class="info-card">
+                    <h3>☕ How to Use</h3>
+                    <ul class="feature-list">
+                        <li>Press the first button to connect your wallet</li>
+                        <li>Press the second button to create your identity</li>
+                        <li>Press the third button to claim your SoulDrop NFT</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="espresso-machine">
+                <div class="machine-top">
+                    <div class="steam-wand"></div>
+                    <div class="steam-effect" id="steamEffect">
+                        <div class="steam-particle"></div>
+                        <div class="steam-particle"></div>
+                        <div class="steam-particle"></div>
+                    </div>
+                </div>
+                
+                <div class="machine-body">
+                    <div class="display-screen">
+                        <div class="screen-glow"></div>
+                        <div class="status-text" id="statusText">
+                            ☕ Welcome to ZK SoulDrop<br>
+                            Ready to brew your identity
+                        </div>
+                    </div>
+                    
+                    <div class="progress-lights">
+                        <div class="progress-light" id="light1"></div>
+                        <div class="progress-light" id="light2"></div>
+                        <div class="progress-light" id="light3"></div>
+                    </div>
+                    
+                    <div class="button-panel">
+                        <button class="espresso-button button-connect" id="connectBtn" onclick="connectWallet()">
+                            <span style="font-size: 1.5em;">🔗</span>
+                            <span>Connect<br>Wallet</span>
+                        </button>
+                        <button class="espresso-button button-identity" id="identityBtn" onclick="createIdentity()" disabled>
+                            <span style="font-size: 1.5em;">🆔</span>
+                            <span>Create<br>Identity</span>
+                        </button>
+                        <button class="espresso-button button-claim" id="claimBtn" onclick="claimNFT()" disabled>
+                            <span style="font-size: 1.5em;">🎁</span>
+                            <span>Claim<br>SoulDrop</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="machine-base"></div>
+                <div class="coffee-cup" id="coffeeCup"></div>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-card">
+                    <h3>🌐 Semaphore Protocol</h3>
+                    <p>Built on the leading zero-knowledge protocol for anonymous signaling. Semaphore enables private group membership and anonymous actions.</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>🛡️ Privacy Features</h3>
+                    <ul class="feature-list">
+                        <li>Anonymous group membership</li>
+                        <li>Nullifier system prevents double-claiming</li>
+                        <li>Zero personal data stored on-chain</li>
+                        <li>Gas-efficient proof verification</li>
+                    </ul>
+                </div>
+
+                <div id="walletInfo" class="wallet-info" style="display: none;">
+                    <strong>Wallet Connected:</strong><br>
+                    <span id="walletAddress">0x...</span>
+                </div>
+
+                <div id="nftPreview" class="nft-preview" style="display: none;">
+                    <div class="nft-image">☕</div>
+                    <h3>Your SoulDrop NFT</h3>
+                    <p>Unique Soulbound Token</p>
+                    <small>Token ID: #<span id="tokenId">001</span></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        let isConnected = false;
+        let hasIdentity = false;
+        let hasNFT = false;
+
+        function updateStatus(message) {
+            document.getElementById('statusText').innerHTML = message;
+        }
+
+        function activateLight(step) {
+            for (let i = 1; i <= 3; i++) {
+                const light = document.getElementById(`light${i}`);
+                if (i <= step) {
+                    light.classList.add('active');
+                } else {
+                    light.classList.remove('active');
+                }
+            }
+        }
+
+        function showSteam() {
+            const steamEffect = document.getElementById('steamEffect');
+            steamEffect.classList.add('active');
+            setTimeout(() => {
+                steamEffect.classList.remove('active');
+            }, 3000);
+        }
+
+        async function connectWallet() {
+            const connectBtn = document.getElementById('connectBtn');
+            const identityBtn = document.getElementById('identityBtn');
+            
+            connectBtn.disabled = true;
+            updateStatus('☕ Connecting to wallet...<br>Please approve in your wallet');
+            showSteam();
+            
+            // Simulate wallet connection
+            setTimeout(() => {
+                isConnected = true;
+                currentStep = 1;
+                activateLight(1);
+                
+                updateStatus('✅ Wallet connected successfully!<br>Ready to create identity');
+                connectBtn.style.background = 'linear-gradient(145deg, #4CAF50, #388E3C)';
+                connectBtn.innerHTML = '<span style="font-size: 1.5em;">✅</span><span>Connected</span>';
+                
+                identityBtn.disabled = false;
+                
+                // Show wallet info
+                document.getElementById('walletInfo').style.display = 'block';
+                document.getElementById('walletAddress').textContent = '0x1234...5678';
+                
+            }, 2000);
+        }
+
+        async function createIdentity() {
+            const identityBtn = document.getElementById('identityBtn');
+            const claimBtn = document.getElementById('claimBtn');
+            
+            identityBtn.disabled = true;
+            updateStatus('🆔 Generating Semaphore identity...<br>Creating zero-knowledge proofs');
+            showSteam();
+            
+            // Simulate identity creation
+            setTimeout(() => {
+                hasIdentity = true;
+                currentStep = 2;
+                activateLight(2);
+                
+                updateStatus('✅ Identity created successfully!<br>Ready to claim your SoulDrop NFT');
+                identityBtn.style.background = 'linear-gradient(145deg, #4CAF50, #388E3C)';
+                identityBtn.innerHTML = '<span style="font-size: 1.5em;">✅</span><span>Identity<br>Created</span>';
+                
+                claimBtn.disabled = false;
+                
+            }, 3000);
+        }
+
+        async function claimNFT() {
+            const claimBtn = document.getElementById('claimBtn');
+            const coffeeCup = document.getElementById('coffeeCup');
+            
+            claimBtn.disabled = true;
+            updateStatus('🎁 Minting your SoulDrop NFT...<br>Brewing your unique token');
+            showSteam();
+            
+            // Simulate NFT minting
+            setTimeout(() => {
+                hasNFT = true;
+                currentStep = 3;
+                activateLight(3);
+                
+                updateStatus('🎉 Congratulations!<br>Your SoulDrop NFT has been minted!');
+                claimBtn.style.background = 'linear-gradient(145deg, #4CAF50, #388E3C)';
+                claimBtn.innerHTML = '<span style="font-size: 1.5em;">🎉</span><span>Claimed!</span>';
+                
+                // Show coffee cup and NFT preview
+                coffeeCup.classList.add('show');
+                document.getElementById('nftPreview').style.display = 'block';
+                document.getElementById('tokenId').textContent = Math.floor(Math.random() * 1000) + 1;
+                
+                // Final steam effect
+                setTimeout(() => showSteam(), 500);
+                
+            }, 4000);
+        }
+
+        // Add ambient coffee shop sounds (visual feedback)
+        setInterval(() => {
+            if (Math.random() < 0.1) {
+                const lights = document.querySelectorAll('.progress-light:not(.active)');
+                if (lights.length > 0) {
+                    const randomLight = lights[Math.floor(Math.random() * lights.length)];
+                    randomLight.style.background = '#333';
+                    setTimeout(() => {
+                        randomLight.style.background = '#222';
+                    }, 200);
+                }
+            }
+        }, 2000);
+
+        // Add button hover sound effects (visual feedback)
+        document.querySelectorAll('.espresso-button').forEach(button => {
+            button.addEventListener('mouseenter', () => {
+                if (!button.disabled) {
+                    button.style.transform = 'translateY(-2px) scale(1.05)';
+                }
+            });
+            
+            button.addEventListener('mouseleave', () => {
+                if (!button.disabled) {
+                    button.style.transform = 'translateY(0) scale(1)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
