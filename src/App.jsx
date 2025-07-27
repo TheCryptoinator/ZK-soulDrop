@@ -169,7 +169,6 @@ function App() {
         } catch (error) {
           console.log('Error switching to BlockDAG testnet:', error.message);
         }
-        }
         
         setStatus({ type: 'success', message: 'Wallet connected successfully!' });
       } else {
