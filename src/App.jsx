@@ -50,7 +50,7 @@ function App() {
   const [nftImageUrl, setNftImageUrl] = useState(null);
 
   // Contract addresses (update these after deployment)
-  const CONTRACT_ADDRESS = '0x5b6eC3bAC88BE8b6171D8F45dd02bd268650Ce54'; // Deployed SoulDropNFT address
+  const CONTRACT_ADDRESS = '0x7E5dF92ceDe2C5caD0c12c98eB5AB81744812566'; // Deployed SoulDropNFT address
   const GROUP_ID = '0x18c5de6932c36fa40ac7487eddfe4ee47a1ec044b570802e4fd4c982f3769b65'; // Deployed group ID
 
   useEffect(() => {
