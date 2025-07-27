@@ -106,7 +106,19 @@ function App() {
     } else {
       const account = accounts[0];
       console.log('Setting account:', account);
-      setAccount(account);
+      
+      // Get the address from the signer if it's a JsonRpcSigner
+      let accountAddress;
+      if (typeof account === 'object' && account.address) {
+        accountAddress = account.address;
+      } else if (typeof account === 'string') {
+        accountAddress = account;
+      } else {
+        console.error('Unexpected account format:', account);
+        return;
+      }
+      
+      setAccount(accountAddress);
       
       if (provider) {
         try {
@@ -116,7 +128,7 @@ function App() {
           console.log('Contract set up successfully');
           
           // Check if user has already minted
-          await checkMintStatus(contract, account);
+          await checkMintStatus(contract, accountAddress);
           await getTotalSupply(contract);
         } catch (error) {
           console.error('Error setting up contract:', error);
@@ -131,7 +143,7 @@ function App() {
         console.log('Contract set up with new provider');
         
         // Check if user has already minted
-        await checkMintStatus(contract, account);
+        await checkMintStatus(contract, accountAddress);
         await getTotalSupply(contract);
       }
     }
