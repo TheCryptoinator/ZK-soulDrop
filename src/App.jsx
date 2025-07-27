@@ -323,11 +323,12 @@ function App() {
       }
       
       // Handle different proof result structures
-      let nullifierHash, merkleRoot;
+      let nullifierHash, merkleRoot, proof;
       
       if (proofResult.publicSignals) {
         // Expected structure: { proof, publicSignals: { nullifierHash, merkleRoot } }
-        const { proof, publicSignals } = proofResult;
+        const { proof: proofData, publicSignals } = proofResult;
+        proof = proofData;
         if (!publicSignals.nullifierHash || !publicSignals.merkleRoot) {
           console.error('Invalid publicSignals:', publicSignals);
           throw new Error('Failed to generate ZK proof - missing nullifierHash or merkleRoot');
@@ -340,11 +341,12 @@ function App() {
           console.error('Invalid proof result:', proofResult);
           throw new Error('Failed to generate ZK proof - missing nullifierHash or merkleTreeRoot');
         }
+        proof = proofResult.proof;
         nullifierHash = proofResult.nullifierHash;
         merkleRoot = proofResult.merkleTreeRoot;
       }
       
-      console.log('Extracted values:', { nullifierHash, merkleRoot });
+      console.log('Extracted values:', { nullifierHash, merkleRoot, proof: proof ? 'present' : 'missing' });
 
       // Get current token ID (total supply + 1)
       const currentSupply = await contract.totalSupply();
