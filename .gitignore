@@ -103,3 +103,4 @@ deployment-info.json
 # Private keys (never commit these!)
 *.pem
 *.key 
+.vercel
