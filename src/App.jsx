@@ -79,13 +79,13 @@ function App() {
     } else {
       const account = accounts[0];
       setAccount(account);
-      
+
       if (provider) {
         try {
           const signer = await provider.getSigner();
           const contract = new ethers.Contract(CONTRACT_ADDRESS, SOULDROP_ABI, signer);
           setContract(contract);
-          
+
           // Check if user has already minted
           await checkMintStatus(contract, account);
           await getTotalSupply(contract);
@@ -100,7 +100,7 @@ function App() {
     try {
       setLoading(true);
       await window.ethereum.request({ method: 'eth_requestAccounts' });
-      
+
       // Add BlockDAG testnet if not already added
       try {
         await window.ethereum.request({
@@ -111,7 +111,7 @@ function App() {
         // Chain might already be added
         console.log('Chain already added or user rejected');
       }
-      
+
       setStatus({ type: 'success', message: 'Wallet connected successfully!' });
     } catch (error) {
       console.error('Error connecting wallet:', error);
@@ -124,6 +124,7 @@ function App() {
   const generateIdentity = async () => {
     try {
       setLoading(true);
+<<<<<<< Updated upstream
       
       // Generate a mock identity for demo purposes
       const mockIdentity = {
@@ -143,6 +144,20 @@ function App() {
       setStatus({ 
         type: 'success', 
         message: 'Identity generated successfully! You can now join the group.' 
+=======
+
+      // Generate a real Semaphore identity
+      const identity = new Identity();
+      setIdentity(identity);
+
+      // Create a real Semaphore group
+      const group = new Group(GROUP_ID, 20); // 20 is the merkle tree depth
+      setGroup(group);
+
+      setStatus({
+        type: 'success',
+        message: 'Identity generated successfully! You can now join the group.'
+>>>>>>> Stashed changes
       });
     } catch (error) {
       console.error('Error generating identity:', error);
@@ -155,17 +170,17 @@ function App() {
   const joinGroup = async () => {
     try {
       setLoading(true);
-      
+
       if (!identity || !group) {
         throw new Error('Please generate an identity first');
       }
 
       // Simulate joining the group
       setIsInGroup(true);
-      
-      setStatus({ 
-        type: 'success', 
-        message: 'Successfully joined the group! You can now claim your SoulDrop NFT.' 
+
+      setStatus({
+        type: 'success',
+        message: 'Successfully joined the group! You can now claim your SoulDrop NFT.'
       });
     } catch (error) {
       console.error('Error joining group:', error);
@@ -176,9 +191,10 @@ function App() {
   };
 
   const claimSoulDrop = async () => {
+    console.log('abc')
     try {
       setLoading(true);
-      
+
       if (!identity || !group || !contract || !account) {
         throw new Error('Please complete all previous steps first');
       }
@@ -187,11 +203,27 @@ function App() {
         throw new Error('You have already minted your SoulDrop NFT');
       }
 
+<<<<<<< Updated upstream
       // For demo purposes, we'll use mock proof data
       // In production, this would generate actual ZK proofs
       const mockProof = Array(8).fill(ethers.getBigInt(1));
       const mockNullifierHash = ethers.keccak256(ethers.toUtf8Bytes(account + Date.now()));
       const mockMerkleRoot = ethers.keccak256(ethers.toUtf8Bytes("demo_root"));
+=======
+      // Generate real ZK proof using Semaphore
+      const externalNullifier = ethers.keccak256(ethers.toUtf8Bytes("ZK SoulDrop"));
+      const signal = ethers.keccak256(ethers.toUtf8Bytes(account));
+
+      const { proof, publicSignals } = await generateProof(
+        identity,
+        group,
+        externalNullifier,
+        signal
+      );
+
+      const nullifierHash = publicSignals.nullifierHash;
+      const merkleRoot = publicSignals.merkleRoot;
+>>>>>>> Stashed changes
 
       // Mint the NFT
       const tx = await contract.mintSoulDrop(
@@ -201,21 +233,21 @@ function App() {
         mockProof
       );
 
-      setStatus({ 
-        type: 'info', 
-        message: 'Transaction submitted! Waiting for confirmation...' 
+      setStatus({
+        type: 'info',
+        message: 'Transaction submitted! Waiting for confirmation...'
       });
 
       await tx.wait();
-      
-      setStatus({ 
-        type: 'success', 
-        message: 'SoulDrop NFT minted successfully! 🎉' 
+
+      setStatus({
+        type: 'success',
+        message: 'SoulDrop NFT minted successfully! 🎉'
       });
-      
+
       setHasMinted(true);
       await getTotalSupply(contract);
-      
+
     } catch (error) {
       console.error('Error claiming SoulDrop:', error);
       setStatus({ type: 'error', message: 'Failed to claim SoulDrop: ' + error.message });
@@ -244,7 +276,7 @@ function App() {
 
   const getNetworkName = (chainId) => {
     if (!chainId) return 'Unknown Network';
-    
+
     switch (chainId) {
       case '0x3039': // 12345
         return 'BlockDAG Testnet';
@@ -275,7 +307,7 @@ function App() {
       <div className="card">
         <h2>🔗 Connect Wallet</h2>
         {!account ? (
-          <button 
+          <button
             className={`button ${loading ? 'loading' : ''}`}
             onClick={connectWallet}
             disabled={loading}
@@ -306,7 +338,7 @@ function App() {
               <h3>1️⃣ Generate Identity</h3>
               <p>Create your unique Semaphore identity for zero-knowledge proof generation.</p>
               {!identity ? (
-                <button 
+                <button
                   className={`button ${loading ? 'loading' : ''}`}
                   onClick={generateIdentity}
                   disabled={loading}
@@ -326,30 +358,10 @@ function App() {
             </div>
           </div>
 
-          {/* Step 2: Join Group */}
+          {/* Step 2: Claim SoulDrop NFT */}
           <div className="card">
             <div className="step">
-              <h3>2️⃣ Join Group</h3>
-              <p>Join the SoulDrop group to become eligible for NFT minting.</p>
-              {!isInGroup ? (
-                <button 
-                  className={`button ${loading ? 'loading' : ''}`}
-                  onClick={joinGroup}
-                  disabled={!identity || loading}
-                >
-                  {loading && <span className="loading-spinner"></span>}
-                  Join Group
-                </button>
-              ) : (
-                <div className="status success">Successfully joined the group!</div>
-              )}
-            </div>
-          </div>
-
-          {/* Step 3: Claim SoulDrop NFT */}
-          <div className="card">
-            <div className="step">
-              <h3>3️⃣ Claim SoulDrop NFT</h3>
+              <h3>2️⃣ Claim SoulDrop NFT</h3>
               <p>Mint your unique soulbound NFT using zero-knowledge proofs.</p>
               {hasMinted ? (
                 <div>
@@ -361,10 +373,10 @@ function App() {
                   </div>
                 </div>
               ) : (
-                <button 
+                <button
                   className={`button ${loading ? 'loading' : ''}`}
                   onClick={claimSoulDrop}
-                  disabled={!isInGroup || loading}
+                  disabled={!identity || loading}
                 >
                   {loading && <span className="loading-spinner"></span>}
                   Claim SoulDrop NFT
@@ -393,8 +405,7 @@ function App() {
         <h3>📖 How It Works</h3>
         <div style={{ lineHeight: '1.8' }}>
           <p><strong>1. Generate Identity:</strong> Create a unique Semaphore identity that proves you're a real person without revealing any personal information.</p>
-          <p><strong>2. Join Group:</strong> Become a member of the SoulDrop group by submitting your identity commitment.</p>
-          <p><strong>3. Claim NFT:</strong> Generate a zero-knowledge proof that you're a group member and mint your unique soulbound NFT.</p>
+          <p><strong>2. Claim NFT:</strong> Generate a zero-knowledge proof that you're a group member and mint your unique soulbound NFT.</p>
           <p><strong>Privacy:</strong> Your identity remains completely private - only the proof is submitted to the blockchain.</p>
         </div>
       </div>
