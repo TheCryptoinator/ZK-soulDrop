@@ -188,6 +188,14 @@ body {
   gap: 0.5rem;
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.8);
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.chain-id {
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 4px;
 }
 
 .network-indicator {

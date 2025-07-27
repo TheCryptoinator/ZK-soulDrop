@@ -37,6 +37,7 @@ function App() {
   const [totalSupply, setTotalSupply] = useState(0);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: '', message: '' });
+  const [chainId, setChainId] = useState(null);
 
   // Contract addresses (update these after deployment)
   const CONTRACT_ADDRESS = '0xc04F364A0dd9af2021eb62374f87920DcEe977A8'; // Deployed SoulDropNFT address
@@ -53,9 +54,20 @@ function App() {
         const provider = new ethers.BrowserProvider(window.ethereum);
         setProvider(provider);
 
+        // Get current chain ID
+        try {
+          const network = await provider.getNetwork();
+          setChainId('0x' + network.chainId.toString(16));
+        } catch (error) {
+          console.error('Error getting chain ID:', error);
+        }
+
         // Listen for account changes
         window.ethereum.on('accountsChanged', handleAccountsChanged);
-        window.ethereum.on('chainChanged', () => window.location.reload());
+        window.ethereum.on('chainChanged', async (newChainId) => {
+          setChainId(newChainId);
+          window.location.reload();
+        });
 
         // Get initial account
         try {
@@ -295,8 +307,11 @@ function App() {
               <div className="wallet-address">{account?.toString() || account}</div>
             </div>
             <div className="network-info">
-              <div className={`network-indicator ${isCorrectNetwork(window.ethereum?.chainId || '') ? '' : 'wrong'}`}></div>
-              <span>{getNetworkName(window.ethereum?.chainId || '')}</span>
+              <div className={`network-indicator ${isCorrectNetwork(chainId || '') ? '' : 'wrong'}`}></div>
+              <span>{getNetworkName(chainId || '')}</span>
+              {chainId && (
+                <div className="chain-id">Chain ID: {chainId}</div>
+              )}
             </div>
           </div>
         )}
