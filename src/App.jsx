@@ -3,6 +3,14 @@ import { ethers } from 'ethers';
 import { Identity } from '@semaphore-protocol/identity';
 import { Group } from '@semaphore-protocol/group';
 import { generateProof } from '@semaphore-protocol/proof';
+import { 
+  uploadMetadataToIPFS, 
+  uploadImageToIPFS, 
+  generateNFTMetadata, 
+  generateDefaultNFTImage, 
+  svgToFile,
+  getIPFSURL 
+} from './ipfs';
 
 // Contract ABI (simplified for demo)
 const SOULDROP_ABI = [
@@ -38,6 +46,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: '', message: '' });
   const [chainId, setChainId] = useState(null);
+  const [nftMetadata, setNftMetadata] = useState(null);
+  const [nftImageUrl, setNftImageUrl] = useState(null);
 
   // Contract addresses (update these after deployment)
   const CONTRACT_ADDRESS = '0xc04F364A0dd9af2021eb62374f87920DcEe977A8'; // Deployed SoulDropNFT address
@@ -254,6 +264,11 @@ function App() {
         throw new Error('You have already minted your SoulDrop NFT');
       }
 
+      setStatus({ 
+        type: 'info', 
+        message: 'Generating ZK proof and creating NFT metadata...' 
+      });
+
       // Generate real ZK proof using Semaphore
       const externalNullifier = ethers.keccak256(ethers.toUtf8Bytes("ZK SoulDrop"));
       const signal = ethers.keccak256(ethers.toUtf8Bytes(account));
@@ -267,6 +282,47 @@ function App() {
       
       const nullifierHash = publicSignals.nullifierHash;
       const merkleRoot = publicSignals.merkleRoot;
+
+      // Get current token ID (total supply + 1)
+      const currentSupply = await contract.totalSupply();
+      const tokenId = Number(currentSupply) + 1;
+
+      setStatus({ 
+        type: 'info', 
+        message: 'Creating NFT image and uploading to IPFS...' 
+      });
+
+      // Generate NFT image
+      const svgData = generateDefaultNFTImage(tokenId.toString(), account);
+      const imageFile = svgToFile(svgData, `souldrop-${tokenId}.svg`);
+      
+      // Upload image to IPFS
+      const imageHash = await uploadImageToIPFS(imageFile);
+      
+      setStatus({ 
+        type: 'info', 
+        message: 'Generating NFT metadata...' 
+      });
+
+      // Generate NFT metadata
+      const metadata = generateNFTMetadata(
+        tokenId.toString(),
+        account,
+        imageHash,
+        { proofHash: nullifierHash }
+      );
+      
+      // Upload metadata to IPFS
+      const metadataHash = await uploadMetadataToIPFS(metadata);
+      
+      // Store metadata and image URL for display
+      setNftMetadata(metadata);
+      setNftImageUrl(getIPFSURL(imageHash));
+
+      setStatus({ 
+        type: 'info', 
+        message: 'Minting NFT on blockchain...' 
+      });
 
       // Mint the NFT
       const tx = await contract.mintSoulDrop(
@@ -285,7 +341,7 @@ function App() {
       
       setStatus({ 
         type: 'success', 
-        message: 'SoulDrop NFT minted successfully! 🎉' 
+        message: `SoulDrop NFT #${tokenId} minted successfully! 🎉\nMetadata: ipfs://${metadataHash}` 
       });
       
       setHasMinted(true);
@@ -458,9 +514,28 @@ function App() {
                 <div>
                   <div className="status success">You have already minted your SoulDrop NFT! 🎉</div>
                   <div className="nft-preview">
-                    <div className="nft-image">🧠</div>
+                    {nftImageUrl ? (
+                      <img 
+                        src={nftImageUrl} 
+                        alt="ZK SoulDrop NFT" 
+                        className="nft-image"
+                        style={{ width: '200px', height: '200px', borderRadius: '15px' }}
+                      />
+                    ) : (
+                      <div className="nft-image">🧠</div>
+                    )}
                     <h3>ZK SoulDrop NFT</h3>
                     <p>Your unique soulbound token</p>
+                    {nftMetadata && (
+                      <div className="nft-metadata">
+                        <h4>NFT Details:</h4>
+                        <p><strong>Name:</strong> {nftMetadata.name}</p>
+                        <p><strong>Type:</strong> Soulbound (Non-transferable)</p>
+                        <p><strong>Technology:</strong> Zero-Knowledge Proofs</p>
+                        <p><strong>Protocol:</strong> Semaphore</p>
+                        <p><strong>Blockchain:</strong> BlockDAG Testnet</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (

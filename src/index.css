@@ -317,4 +317,28 @@ body {
 .warning-banner .button:hover {
   background: linear-gradient(135deg, #ee5a52 0%, #d63031 100%);
   transform: translateY(-2px);
+}
+
+.nft-metadata {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 10px;
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.nft-metadata h4 {
+  margin: 0 0 0.5rem 0;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.nft-metadata p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.nft-metadata strong {
+  color: #fff;
 } 
