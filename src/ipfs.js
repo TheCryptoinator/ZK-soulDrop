@@ -343,19 +343,19 @@ export const generateRandomNFTImage = (tokenId, ownerAddress) => {
        <text x="0" y="5" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">ZK</text>
      </g>`,
     
-    // Brain Icon
-    `<g transform="translate(200, 180)">
-       <circle cx="0" cy="0" r="50" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
-       <path d="M-30,-20 Q-20,-40 0,-30 Q20,-40 30,-20 Q40,0 30,20 Q20,40 0,30 Q-20,40 -30,20 Q-40,0 -30,-20" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-       <text x="0" y="5" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">🧠</text>
-     </g>`,
-    
-    // Shield Icon
-    `<g transform="translate(200, 180)">
-       <path d="M0,-40 L20,-20 L20,20 L0,40 L-20,20 L-20,-20 Z" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
-       <circle cx="0" cy="0" r="15" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-       <text x="0" y="5" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">🛡️</text>
-     </g>`,
+         // Brain Icon
+     `<g transform="translate(200, 180)">
+        <circle cx="0" cy="0" r="50" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+        <path d="M-30,-20 Q-20,-40 0,-30 Q20,-40 30,-20 Q40,0 30,20 Q20,40 0,30 Q-20,40 -30,20 Q-40,0 -30,-20" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+        <text x="0" y="5" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">BRAIN</text>
+      </g>`,
+     
+     // Shield Icon
+     `<g transform="translate(200, 180)">
+        <path d="M0,-40 L20,-20 L20,20 L0,40 L-20,20 L-20,-20 Z" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+        <circle cx="0" cy="0" r="15" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+        <text x="0" y="5" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">SHIELD</text>
+      </g>`,
     
     // Infinity Symbol
     `<g transform="translate(200, 180)">
@@ -391,7 +391,12 @@ export const generateRandomNFTImage = (tokenId, ownerAddress) => {
     </svg>
   `;
   
-  return `data:image/svg+xml;base64,${btoa(svg)}`;
+  // Use encodeURIComponent and btoa to handle Unicode characters properly
+  const encodedSvg = encodeURIComponent(svg).replace(/%([0-9A-F]{2})/g,
+    function toSolidBytes(match, p1) {
+      return String.fromCharCode('0x' + p1);
+    });
+  return `data:image/svg+xml;base64,${btoa(encodedSvg)}`;
 };
 
 /**
