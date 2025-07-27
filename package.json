@@ -17,6 +17,7 @@
     "@semaphore-protocol/group": "^3.1.0",
     "@semaphore-protocol/identity": "^3.1.0",
     "@semaphore-protocol/proof": "^3.1.0",
+    "buffer": "^6.0.3",
     "dotenv": "^17.2.1",
     "ethers": "^6.8.1",
     "process": "^0.11.10",
@@ -24,7 +25,8 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.8.1",
     "stream-browserify": "^3.0.0",
-    "util": "^0.12.5"
+    "util": "^0.12.5",
+    "vite-plugin-node-polyfills": "^0.24.0"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",

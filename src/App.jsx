@@ -39,8 +39,8 @@ function App() {
   const [status, setStatus] = useState({ type: '', message: '' });
 
   // Contract addresses (update these after deployment)
-  const CONTRACT_ADDRESS = '0x...'; // Update with deployed contract address
-  const GROUP_ID = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
+  const CONTRACT_ADDRESS = '0xc04F364A0dd9af2021eb62374f87920DcEe977A8'; // Deployed SoulDropNFT address
+  const GROUP_ID = '0x18c5de6932c36fa40ac7487eddfe4ee47a1ec044b570802e4fd4c982f3769b65'; // Deployed group ID
 
   useEffect(() => {
     initializeApp();
