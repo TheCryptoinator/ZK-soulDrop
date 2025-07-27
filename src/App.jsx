@@ -349,7 +349,7 @@ function App() {
       console.log('Extracted values:', { nullifierHash, merkleRoot, proof: proof ? 'present' : 'missing' });
 
       // Get current token ID (total supply + 1)
-      const currentSupply = await contract.totalSupply();
+      const currentSupply = await getTotalSupply(contract);
       const tokenId = Number(currentSupply) + 1;
 
       setStatus({ 
@@ -424,8 +424,12 @@ function App() {
     try {
       const minted = await contract.hasMinted(account);
       setHasMinted(minted);
+      return minted;
     } catch (error) {
       console.error('Error checking mint status:', error);
+      // Fallback: assume not minted if contract call fails
+      setHasMinted(false);
+      return false;
     }
   };
 
@@ -433,8 +437,12 @@ function App() {
     try {
       const supply = await contract.totalSupply();
       setTotalSupply(Number(supply));
+      return supply;
     } catch (error) {
       console.error('Error getting total supply:', error);
+      // Fallback: assume 0 if contract call fails
+      setTotalSupply(0);
+      return 0;
     }
   };
 
