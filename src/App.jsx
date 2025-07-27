@@ -4,6 +4,8 @@ import { Identity } from '@semaphore-protocol/identity';
 import { Group } from '@semaphore-protocol/group';
 import { generateProof } from '@semaphore-protocol/proof';
 
+import ThreeScene from "./components/ThreeScene";
+
 // Contract ABI (simplified for demo)
 const SOULDROP_ABI = [
   "function mintSoulDrop(address receiver, uint256 nullifierHash, uint256 merkleRoot, uint256[8] proof) external",
@@ -403,6 +405,8 @@ function App() {
           <p><strong>Privacy:</strong> Your identity remains completely private - only the proof is submitted to the blockchain.</p>
         </div>
       </div>
+
+    <ThreeScene/>
     </div>
   );
 }
