@@ -391,12 +391,14 @@ export const generateRandomNFTImage = (tokenId, ownerAddress) => {
     </svg>
   `;
   
-  // Use encodeURIComponent and btoa to handle Unicode characters properly
-  const encodedSvg = encodeURIComponent(svg).replace(/%([0-9A-F]{2})/g,
-    function toSolidBytes(match, p1) {
-      return String.fromCharCode('0x' + p1);
-    });
-  return `data:image/svg+xml;base64,${btoa(encodedSvg)}`;
+  // Simple base64 encoding for SVG - avoid Unicode issues
+  try {
+    return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+  } catch (error) {
+    console.error('SVG encoding error:', error);
+    // Fallback to simple encoding
+    return `data:image/svg+xml;base64,${btoa(svg)}`;
+  }
 };
 
 /**

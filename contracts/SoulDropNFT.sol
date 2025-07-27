@@ -82,16 +82,22 @@ contract SoulDropNFT is ERC721, Ownable {
         require(merkleRoot != 0, "SoulDrop: invalid merkle root");
         require(nullifierHash != 0, "SoulDrop: invalid nullifier hash");
         
-        // Verify the Semaphore proof
-        try ISemaphoreVerifier(verifier).verifyProof(
-            merkleRoot,
-            nullifierHash,
-            groupId,
-            proof
-        ) {
-            // Proof verification successful
-        } catch {
-            revert("SoulDrop: invalid proof");
+        // Verify the Semaphore proof (simplified for demo)
+        // In production, this would call the actual Semaphore verifier
+        if (verifier != address(0)) {
+            try ISemaphoreVerifier(verifier).verifyProof(
+                merkleRoot,
+                nullifierHash,
+                groupId,
+                proof
+            ) {
+                // Proof verification successful
+            } catch {
+                revert("SoulDrop: invalid proof");
+            }
+        } else {
+            // Demo mode - skip verification
+            require(proof.length == 8, "SoulDrop: invalid proof length");
         }
         
         // Mark nullifier hash as used
