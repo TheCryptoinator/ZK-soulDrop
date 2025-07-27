@@ -16,9 +16,21 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          crypto: ['ethers', 'buffer', 'process']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
   },
   define: {
     global: 'globalThis'
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'ethers', 'buffer', 'process']
   }
 }) 
