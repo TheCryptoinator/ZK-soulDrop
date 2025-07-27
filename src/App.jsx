@@ -49,15 +49,21 @@ function App() {
 
   const initializeApp = async () => {
     try {
+      console.log('Initializing app...');
+      
       // Check if MetaMask is installed
       if (typeof window.ethereum !== 'undefined') {
+        console.log('MetaMask detected');
         const provider = new ethers.BrowserProvider(window.ethereum);
         setProvider(provider);
+        console.log('Provider set');
 
         // Get current chain ID
         try {
           const network = await provider.getNetwork();
-          setChainId('0x' + network.chainId.toString(16));
+          const chainIdHex = '0x' + network.chainId.toString(16);
+          setChainId(chainIdHex);
+          console.log('Chain ID set to:', chainIdHex);
         } catch (error) {
           console.error('Error getting chain ID:', error);
         }
@@ -65,6 +71,7 @@ function App() {
         // Listen for account changes
         window.ethereum.on('accountsChanged', handleAccountsChanged);
         window.ethereum.on('chainChanged', async (newChainId) => {
+          console.log('Chain changed to:', newChainId);
           setChainId(newChainId);
           window.location.reload();
         });
@@ -72,6 +79,7 @@ function App() {
         // Get initial account
         try {
           const accounts = await provider.listAccounts();
+          console.log('Initial accounts:', accounts);
           if (accounts.length > 0) {
             await handleAccountsChanged(accounts);
           }
@@ -79,6 +87,7 @@ function App() {
           console.error('Error getting initial accounts:', error);
         }
       } else {
+        console.log('MetaMask not detected');
         setStatus({ type: 'error', message: 'MetaMask is not installed. Please install MetaMask to use this app.' });
       }
     } catch (error) {
@@ -88,11 +97,15 @@ function App() {
   };
 
   const handleAccountsChanged = async (accounts) => {
+    console.log('handleAccountsChanged called with:', accounts);
+    
     if (accounts.length === 0) {
+      console.log('No accounts, clearing state');
       setAccount(null);
       setContract(null);
     } else {
       const account = accounts[0];
+      console.log('Setting account:', account);
       setAccount(account);
       
       if (provider) {
@@ -100,6 +113,7 @@ function App() {
           const signer = await provider.getSigner();
           const contract = new ethers.Contract(CONTRACT_ADDRESS, SOULDROP_ABI, signer);
           setContract(contract);
+          console.log('Contract set up successfully');
           
           // Check if user has already minted
           await checkMintStatus(contract, account);
@@ -107,6 +121,8 @@ function App() {
         } catch (error) {
           console.error('Error setting up contract:', error);
         }
+      } else {
+        console.log('No provider available');
       }
     }
   };
@@ -114,20 +130,29 @@ function App() {
   const connectWallet = async () => {
     try {
       setLoading(true);
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
       
-      // Add BlockDAG testnet if not already added
-      try {
-        await window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [BLOCKDAG_CONFIG],
-        });
-      } catch (error) {
-        // Chain might already be added
-        console.log('Chain already added or user rejected');
+      // Request account access
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      
+      if (accounts.length > 0) {
+        // Update account state
+        await handleAccountsChanged(accounts);
+        
+        // Add BlockDAG testnet if not already added
+        try {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [BLOCKDAG_CONFIG],
+          });
+        } catch (error) {
+          // Chain might already be added
+          console.log('Chain already added or user rejected:', error.message);
+        }
+        
+        setStatus({ type: 'success', message: 'Wallet connected successfully!' });
+      } else {
+        setStatus({ type: 'error', message: 'No accounts found. Please unlock MetaMask.' });
       }
-      
-      setStatus({ type: 'success', message: 'Wallet connected successfully!' });
     } catch (error) {
       console.error('Error connecting wallet:', error);
       setStatus({ type: 'error', message: 'Failed to connect wallet: ' + error.message });
