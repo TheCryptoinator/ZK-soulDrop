@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
+import { Identity } from '@semaphore-protocol/identity';
+import { Group } from '@semaphore-protocol/group';
+import { generateProof } from '@semaphore-protocol/proof';
 
 // Contract ABI (simplified for demo)
 const SOULDROP_ABI = [
@@ -12,15 +15,15 @@ const SOULDROP_ABI = [
 
 // BlockDAG testnet configuration
 const BLOCKDAG_CONFIG = {
-  chainId: '0x3039', // 12345 in hex
+  chainId: '0x411', // 1043 in hex
   chainName: 'BlockDAG Testnet',
   nativeCurrency: {
     name: 'BDAG',
     symbol: 'BDAG',
     decimals: 18,
   },
-  rpcUrls: ['https://testnet-rpc.blockdag.network'],
-  blockExplorerUrls: ['https://testnet-explorer.blockdag.network'],
+  rpcUrls: ['https://rpc.primordial.bdagscan.com'],
+  blockExplorerUrls: ['https://primordial.bdagscan.com'],
 };
 
 function App() {
@@ -125,20 +128,13 @@ function App() {
     try {
       setLoading(true);
       
-      // Generate a mock identity for demo purposes
-      const mockIdentity = {
-        commitment: ethers.keccak256(ethers.toUtf8Bytes(`identity_${Date.now()}_${Math.random()}`)),
-        toString: () => mockIdentity.commitment
-      };
-      setIdentity(mockIdentity);
+      // Generate a real Semaphore identity
+      const identity = new Identity();
+      setIdentity(identity);
       
-      // Create a mock group for demo
-      const mockGroup = {
-        id: GROUP_ID,
-        addMember: () => {},
-        generateMerkleProof: () => []
-      };
-      setGroup(mockGroup);
+      // Create a real Semaphore group
+      const group = new Group(GROUP_ID, 20); // 20 is the merkle tree depth
+      setGroup(group);
       
       setStatus({ 
         type: 'success', 
@@ -160,7 +156,8 @@ function App() {
         throw new Error('Please generate an identity first');
       }
 
-      // Simulate joining the group
+      // Add identity to the Semaphore group
+      group.addMember(identity.commitment);
       setIsInGroup(true);
       
       setStatus({ 
@@ -187,18 +184,26 @@ function App() {
         throw new Error('You have already minted your SoulDrop NFT');
       }
 
-      // For demo purposes, we'll use mock proof data
-      // In production, this would generate actual ZK proofs
-      const mockProof = Array(8).fill(ethers.getBigInt(1));
-      const mockNullifierHash = ethers.keccak256(ethers.toUtf8Bytes(account + Date.now()));
-      const mockMerkleRoot = ethers.keccak256(ethers.toUtf8Bytes("demo_root"));
+      // Generate real ZK proof using Semaphore
+      const externalNullifier = ethers.keccak256(ethers.toUtf8Bytes("ZK SoulDrop"));
+      const signal = ethers.keccak256(ethers.toUtf8Bytes(account));
+      
+      const { proof, publicSignals } = await generateProof(
+        identity,
+        group,
+        externalNullifier,
+        signal
+      );
+      
+      const nullifierHash = publicSignals.nullifierHash;
+      const merkleRoot = publicSignals.merkleRoot;
 
       // Mint the NFT
       const tx = await contract.mintSoulDrop(
         account,
-        mockNullifierHash,
-        mockMerkleRoot,
-        mockProof
+        nullifierHash,
+        merkleRoot,
+        proof
       );
 
       setStatus({ 
@@ -246,7 +251,7 @@ function App() {
     if (!chainId) return 'Unknown Network';
     
     switch (chainId) {
-      case '0x3039': // 12345
+      case '0x411': // 1043
         return 'BlockDAG Testnet';
       default:
         return 'Unknown Network';
@@ -254,7 +259,7 @@ function App() {
   };
 
   const isCorrectNetwork = (chainId) => {
-    return chainId === '0x3039'; // BlockDAG testnet
+    return chainId === '0x411'; // BlockDAG testnet
   };
 
   return (
@@ -319,7 +324,7 @@ function App() {
                   <div className="status success">Identity generated successfully!</div>
                   <div className="identity-info">
                     <strong>Identity Commitment:</strong><br />
-                    {identity.commitment}
+                    {identity.commitment.toString()}
                   </div>
                 </div>
               )}

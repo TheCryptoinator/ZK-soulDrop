@@ -7,11 +7,13 @@ async function main() {
   console.log("Deploying contracts with the account:", deployer.address);
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  // For demo purposes, we'll use a placeholder verifier address
-  // In production, you would deploy the actual SemaphoreVerifier contract
-  const semaphoreVerifier = "0x0000000000000000000000000000000000000000"; // Placeholder
+  // Deploy SemaphoreVerifier first
+  console.log("\nDeploying SemaphoreVerifier...");
+  const SemaphoreVerifierFactory = await ethers.getContractFactory("SemaphoreVerifier");
+  const semaphoreVerifier = await SemaphoreVerifierFactory.deploy();
+  await semaphoreVerifier.waitForDeployment();
   
-  console.log("Using placeholder verifier address:", semaphoreVerifier);
+  console.log("SemaphoreVerifier deployed to:", semaphoreVerifier.address);
 
   // Deploy SoulDropNFT
   console.log("\nDeploying SoulDropNFT...");

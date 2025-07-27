@@ -5,6 +5,15 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
+interface ISemaphoreVerifier {
+    function verifyProof(
+        uint256 merkleRoot,
+        uint256 nullifierHash,
+        uint256 groupId,
+        uint256[8] calldata proof
+    ) external view returns (bool);
+}
+
 /**
  * @title SoulDropNFT
  * @dev A soulbound (non-transferable) NFT that can only be minted once per person
@@ -73,8 +82,17 @@ contract SoulDropNFT is ERC721, Ownable {
         require(merkleRoot != 0, "SoulDrop: invalid merkle root");
         require(nullifierHash != 0, "SoulDrop: invalid nullifier hash");
         
-        // TODO: Add actual Semaphore proof verification here
-        // This would call the verifier contract to validate the ZK proof
+        // Verify the Semaphore proof
+        try ISemaphoreVerifier(verifier).verifyProof(
+            merkleRoot,
+            nullifierHash,
+            groupId,
+            proof
+        ) {
+            // Proof verification successful
+        } catch {
+            revert("SoulDrop: invalid proof");
+        }
         
         // Mark nullifier hash as used
         usedNullifierHashes[nullifierHash] = true;

@@ -1,9 +1,15 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    nodePolyfills({
+      include: ['buffer', 'process', 'util', 'stream']
+    })
+  ],
   server: {
     port: 3000,
     host: true
@@ -13,20 +19,6 @@ export default defineConfig({
     sourcemap: true
   },
   define: {
-    global: 'globalThis',
-  },
-  resolve: {
-    alias: {
-      process: "process/browser",
-      stream: "stream-browserify",
-      util: 'util'
-    }
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      define: {
-        global: 'globalThis'
-      }
-    }
+    global: 'globalThis'
   }
 }) 
