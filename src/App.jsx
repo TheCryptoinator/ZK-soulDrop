@@ -208,12 +208,26 @@ function App() {
     try {
       setLoading(true);
       
+      console.log('Generating Semaphore identity...');
+      
       // Generate a real Semaphore identity
       const identity = new Identity();
+      console.log('Identity created:', {
+        commitment: identity.commitment.toString(),
+        trapdoor: identity.trapdoor.toString(),
+        nullifier: identity.nullifier.toString()
+      });
       setIdentity(identity);
+      
+      console.log('Creating Semaphore group with ID:', GROUP_ID);
       
       // Create a real Semaphore group
       const group = new Group(GROUP_ID, 20); // 20 is the merkle tree depth
+      console.log('Group created:', {
+        id: group.id,
+        depth: group.depth,
+        members: group.members.length
+      });
       setGroup(group);
       
       setStatus({ 
@@ -236,8 +250,23 @@ function App() {
         throw new Error('Please generate an identity first');
       }
 
+      console.log('Joining group with identity commitment:', identity.commitment.toString());
+      console.log('Group before adding member:', {
+        id: group.id,
+        depth: group.depth,
+        members: group.members.length
+      });
+
       // Add identity to the Semaphore group
       group.addMember(identity.commitment);
+      
+      console.log('Group after adding member:', {
+        id: group.id,
+        depth: group.depth,
+        members: group.members.length,
+        root: group.root.toString()
+      });
+      
       setIsInGroup(true);
       
       setStatus({ 
@@ -273,12 +302,32 @@ function App() {
       const externalNullifier = ethers.keccak256(ethers.toUtf8Bytes("ZK SoulDrop"));
       const signal = ethers.keccak256(ethers.toUtf8Bytes(account));
       
-      const { proof, publicSignals } = await generateProof(
+      console.log('Generating ZK proof with:', {
+        identity: identity ? 'present' : 'missing',
+        group: group ? 'present' : 'missing',
+        externalNullifier,
+        signal
+      });
+      
+      const proofResult = await generateProof(
         identity,
         group,
         externalNullifier,
         signal
       );
+      
+      console.log('Proof result:', proofResult);
+      
+      if (!proofResult || !proofResult.proof || !proofResult.publicSignals) {
+        throw new Error('Failed to generate ZK proof - invalid result structure');
+      }
+      
+      const { proof, publicSignals } = proofResult;
+      
+      if (!publicSignals.nullifierHash || !publicSignals.merkleRoot) {
+        console.error('Invalid publicSignals:', publicSignals);
+        throw new Error('Failed to generate ZK proof - missing nullifierHash or merkleRoot');
+      }
       
       const nullifierHash = publicSignals.nullifierHash;
       const merkleRoot = publicSignals.merkleRoot;
