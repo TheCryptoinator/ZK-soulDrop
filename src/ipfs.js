@@ -7,10 +7,12 @@ const PINATA_SECRET_KEY = '272755284e5e78cd41931b63ca72608dddbbb85fd096ee1858eb2
 const PINATA_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiJhNDIwMmRiYS03NzZiLTRiZjUtYjc5ZC02NmQ3ODUwZTIyMjQiLCJlbWFpbCI6Impvc2h1YUBibG9ja2RhZy5uZXR3b3JrIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImZhM2IyZjU3MjRjN2Y3ZTRmNTE3Iiwic2NvcGVkS2V5U2VjcmV0IjoiMjcyNzU1Mjg0ZTVlNzhjZDQxOTMxYjYzY2E3MjYwOGRkZGJiYjg1ZmQwOTZlZTE4NThlYjI1NjA0ZjMxOGFkOSIsImV4cCI6MTc4NTE1MTk2MX0.dGYjvve3jKS7z5oSbR4zO7GxMLTfDcbkpWodIUKouUI';
 
 // IPFS Gateway URLs
-const IPFS_GATEWAYS = [
+export const IPFS_GATEWAYS = [
   'https://gateway.pinata.cloud/ipfs/',
   'https://ipfs.io/ipfs/',
-  'https://cloudflare-ipfs.com/ipfs/'
+  'https://dweb.link/ipfs/',
+  'https://cloudflare-ipfs.com/ipfs/',
+  'https://gateway.ipfs.io/ipfs/'
 ];
 
 /**

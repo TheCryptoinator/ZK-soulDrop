@@ -9,7 +9,8 @@ import {
   generateNFTMetadata, 
   generateDefaultNFTImage, 
   svgToFile,
-  getIPFSURL 
+  getIPFSURL,
+  IPFS_GATEWAYS
 } from './ipfs';
 
 // Contract ABI (simplified for demo)
@@ -48,6 +49,7 @@ function App() {
   const [chainId, setChainId] = useState(null);
   const [nftMetadata, setNftMetadata] = useState(null);
   const [nftImageUrl, setNftImageUrl] = useState(null);
+  const [metadataHash, setMetadataHash] = useState(null);
 
   // Contract addresses (update these after deployment)
   const CONTRACT_ADDRESS = '0x7E5dF92ceDe2C5caD0c12c98eB5AB81744812566'; // Deployed SoulDropNFT address
@@ -383,6 +385,7 @@ function App() {
       // Store metadata and image URL for display
       setNftMetadata(metadata);
       setNftImageUrl(getIPFSURL(imageHash));
+      setMetadataHash(metadataHash);
 
       setStatus({ 
         type: 'info', 
@@ -592,21 +595,45 @@ function App() {
                         src={nftImageUrl} 
                         alt="ZK SoulDrop NFT" 
                         className="nft-image"
-                        style={{ width: '200px', height: '200px', borderRadius: '15px' }}
+                        style={{ width: '200px', height: '200px', borderRadius: '15px', border: '2px solid #6366f1' }}
+                        onError={(e) => {
+                          console.log('Image failed to load, trying next gateway...');
+                          // Try next gateway if current one fails
+                          const currentUrl = e.target.src;
+                          const hash = currentUrl.split('/').pop();
+                          const currentGatewayIndex = IPFS_GATEWAYS.findIndex(gateway => currentUrl.startsWith(gateway));
+                          const nextGatewayIndex = (currentGatewayIndex + 1) % IPFS_GATEWAYS.length;
+                          e.target.src = getIPFSURL(hash, nextGatewayIndex);
+                        }}
                       />
                     ) : (
-                      <div className="nft-image">🧠</div>
+                      <div className="nft-image" style={{ width: '200px', height: '200px', borderRadius: '15px', border: '2px solid #6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem', backgroundColor: '#f3f4f6' }}>🧠</div>
                     )}
                     <h3>ZK SoulDrop NFT</h3>
                     <p>Your unique soulbound token</p>
                     {nftMetadata && (
                       <div className="nft-metadata">
-                        <h4>NFT Details:</h4>
+                        <h4>🎯 NFT Details:</h4>
                         <p><strong>Name:</strong> {nftMetadata.name}</p>
                         <p><strong>Type:</strong> Soulbound (Non-transferable)</p>
                         <p><strong>Technology:</strong> Zero-Knowledge Proofs</p>
                         <p><strong>Protocol:</strong> Semaphore</p>
                         <p><strong>Blockchain:</strong> BlockDAG Testnet</p>
+                        
+                        <h4>🔐 Identity Verification:</h4>
+                        <p><strong>Owner Address:</strong> {nftMetadata.attributes?.find(attr => attr.trait_type === "Owner")?.value || 'Unknown'}</p>
+                        <p><strong>Mint Date:</strong> {nftMetadata.attributes?.find(attr => attr.trait_type === "Mint Date")?.value || 'Unknown'}</p>
+                        <p><strong>ZK Proof Hash:</strong> {nftMetadata.attributes?.find(attr => attr.trait_type === "ZK Proof Hash")?.value || 'Generated on-chain'}</p>
+                        
+                        <h4>🌐 IPFS Information:</h4>
+                        <p><strong>Image Hash:</strong> {nftMetadata.image?.replace('ipfs://', '') || 'Unknown'}</p>
+                        <p><strong>Metadata Hash:</strong> {metadataHash || 'Unknown'}</p>
+                        
+                        <div style={{ marginTop: '1rem', padding: '0.5rem', backgroundColor: '#f0f9ff', borderRadius: '8px', border: '1px solid #0ea5e9' }}>
+                          <p style={{ margin: '0', fontSize: '0.9rem', color: '#0369a1' }}>
+                            <strong>✅ Verification Status:</strong> This NFT was minted using zero-knowledge proofs, ensuring your privacy while proving your membership in the SoulDrop community.
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
