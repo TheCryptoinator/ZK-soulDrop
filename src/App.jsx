@@ -15,7 +15,7 @@ const SOULDROP_ABI = [
 
 // BlockDAG testnet configuration
 const BLOCKDAG_CONFIG = {
-  chainId: '0x411', // 1043 in hex
+  chainId: '0x413', // 1043 in decimal, correct hex format
   chainName: 'BlockDAG Testnet',
   nativeCurrency: {
     name: 'BDAG',
@@ -251,7 +251,7 @@ function App() {
     if (!chainId) return 'Unknown Network';
     
     switch (chainId) {
-      case '0x411': // 1043
+      case '0x413': // 1043
         return 'BlockDAG Testnet';
       default:
         return 'Unknown Network';
@@ -259,7 +259,7 @@ function App() {
   };
 
   const isCorrectNetwork = (chainId) => {
-    return chainId === '0x411'; // BlockDAG testnet
+    return chainId === '0x413'; // BlockDAG testnet
   };
 
   return (
