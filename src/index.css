@@ -285,4 +285,36 @@ body {
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+.warning {
+  border: 2px solid #ff6b6b;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%);
+}
+
+.warning-banner {
+  text-align: center;
+  padding: 1rem;
+}
+
+.warning-banner h3 {
+  color: #d63031;
+  margin-bottom: 0.5rem;
+}
+
+.warning-banner p {
+  color: #636e72;
+  margin-bottom: 1rem;
+}
+
+.warning-banner .button {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  border: none;
+  color: white;
+  font-weight: bold;
+}
+
+.warning-banner .button:hover {
+  background: linear-gradient(135deg, #ee5a52 0%, #d63031 100%);
+  transform: translateY(-2px);
 } 

@@ -122,7 +122,17 @@ function App() {
           console.error('Error setting up contract:', error);
         }
       } else {
-        console.log('No provider available');
+        console.log('No provider available, creating new provider');
+        // Create a new provider if none exists
+        const newProvider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await newProvider.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, SOULDROP_ABI, signer);
+        setContract(contract);
+        console.log('Contract set up with new provider');
+        
+        // Check if user has already minted
+        await checkMintStatus(contract, account);
+        await getTotalSupply(contract);
       }
     }
   };
@@ -147,6 +157,18 @@ function App() {
         } catch (error) {
           // Chain might already be added
           console.log('Chain already added or user rejected:', error.message);
+        }
+        
+        // Switch to BlockDAG testnet
+        try {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: BLOCKDAG_CONFIG.chainId }],
+          });
+          console.log('Switched to BlockDAG testnet');
+        } catch (error) {
+          console.log('Error switching to BlockDAG testnet:', error.message);
+        }
         }
         
         setStatus({ type: 'success', message: 'Wallet connected successfully!' });
@@ -341,6 +363,31 @@ function App() {
           </div>
         )}
       </div>
+
+      {/* Network Warning */}
+      {account && chainId && !isCorrectNetwork(chainId) && (
+        <div className="card warning">
+          <div className="warning-banner">
+            <h3>⚠️ Wrong Network Detected</h3>
+            <p>You are currently connected to {getNetworkName(chainId)}. Please switch to BlockDAG Testnet to use this application.</p>
+            <button 
+              className="button"
+              onClick={async () => {
+                try {
+                  await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: BLOCKDAG_CONFIG.chainId }],
+                  });
+                } catch (error) {
+                  console.error('Error switching networks:', error);
+                }
+              }}
+            >
+              Switch to BlockDAG Testnet
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Steps */}
       {account && (
