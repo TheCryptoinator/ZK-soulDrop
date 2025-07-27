@@ -318,19 +318,33 @@ function App() {
       
       console.log('Proof result:', proofResult);
       
-      if (!proofResult || !proofResult.proof || !proofResult.publicSignals) {
+      if (!proofResult || !proofResult.proof) {
         throw new Error('Failed to generate ZK proof - invalid result structure');
       }
       
-      const { proof, publicSignals } = proofResult;
+      // Handle different proof result structures
+      let nullifierHash, merkleRoot;
       
-      if (!publicSignals.nullifierHash || !publicSignals.merkleRoot) {
-        console.error('Invalid publicSignals:', publicSignals);
-        throw new Error('Failed to generate ZK proof - missing nullifierHash or merkleRoot');
+      if (proofResult.publicSignals) {
+        // Expected structure: { proof, publicSignals: { nullifierHash, merkleRoot } }
+        const { proof, publicSignals } = proofResult;
+        if (!publicSignals.nullifierHash || !publicSignals.merkleRoot) {
+          console.error('Invalid publicSignals:', publicSignals);
+          throw new Error('Failed to generate ZK proof - missing nullifierHash or merkleRoot');
+        }
+        nullifierHash = publicSignals.nullifierHash;
+        merkleRoot = publicSignals.merkleRoot;
+      } else {
+        // Actual structure: { proof, nullifierHash, merkleTreeRoot }
+        if (!proofResult.nullifierHash || !proofResult.merkleTreeRoot) {
+          console.error('Invalid proof result:', proofResult);
+          throw new Error('Failed to generate ZK proof - missing nullifierHash or merkleTreeRoot');
+        }
+        nullifierHash = proofResult.nullifierHash;
+        merkleRoot = proofResult.merkleTreeRoot;
       }
       
-      const nullifierHash = publicSignals.nullifierHash;
-      const merkleRoot = publicSignals.merkleRoot;
+      console.log('Extracted values:', { nullifierHash, merkleRoot });
 
       // Get current token ID (total supply + 1)
       const currentSupply = await contract.totalSupply();
